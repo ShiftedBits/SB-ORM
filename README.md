@@ -99,15 +99,15 @@ $model->autocommit(true);
 $object = $model->fetch($id)
 $object = $model->fetch($column, $value);
 ```
-### Updating Object (where <column> is the name of the column in the table)
+### Updating Object (where "column" is the name of the column in the table)
 ```php
 <?php
 $object-><column>($value);
 ```
-### Retreiving Data (where <column> is the name of the column in the table)
+### Retreiving Data (where "column" is the name of the column in the table)
 ```php
 <?php
-$value = $object->column();
+$value = $object-><column>();
 ```
 ### Saving Object
 ```php
