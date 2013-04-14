@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false" backupStaticAttributes="false" strict="true" verbose="true" bootstrap="../bootstrap.php">
+    <testsuites>
+        <testsuite>
+            <directory>../tests/framework/orm</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory>../framework</directory>
+        </whitelist>
+        <blacklist>
+            <directory>../build</directory>
+        </blacklist>
+    </filter>
+    <logging>
+        <log type="coverage-html" target="build/coverage" title="Shifted Bits ORM" charset="UTF-8" yui="true" highlight="true" lowUpperBound="35" highLowerBound="70"/>
+        <log type="coverage-clover" target="build/clover.xml"/>
+        <log type="junit" target="logs/junit.xml" logIncompleteSkipped="false"/>
+    </logging>
+    <php>
+        <env name="TESTING" value="true"/>
+    </php>
+</phpunit>

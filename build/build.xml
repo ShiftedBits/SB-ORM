@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Shifted Bits Framework" default="deploy" basedir=".">
+	<property file="build.properties" />
+
+    <condition property="os.windows">
+        <os family="windows"/>
+    </condition>
+    <condition property="os.unix">
+        <os family="unix" />
+    </condition>
+
+	<target name="clean" description="Clean up and create artifact directories">
+        <delete dir="${build.dir}/api"/>
+        <delete dir="${build.dir}/code-browser"/>
+        <delete dir="${build.dir}/coverage"/>
+        <delete dir="${build.dir}/logs"/>
+        <delete dir="${build.dir}/pdepend"/>
+        <delete dir="${build.dir}/generatedJunitFiles"/>
+
+        <mkdir dir="${build.dir}/api"/>
+        <mkdir dir="${build.dir}/code-browser"/>
+        <mkdir dir="${build.dir}/coverage"/>
+        <mkdir dir="${build.dir}/logs"/>
+        <mkdir dir="${build.dir}/pdepend"/>
+        <mkdir dir="${build.dir}/generatedJunitFiles"/>
+    </target>
+
+    <target name="prepare.windows" if="os.windows">
+        <property name="extension" value=".bat" />
+        <property name="php.execute.dir" value="C:/wamp/bin/php/php5.4.3/" />
+    </target>
+
+    <target name="prepare.unix" if="os.unix">
+        <property name="extension" value="" />
+        <property name="php.execute.dir" value="" />
+    </target>
+
+	<target name="prepare" depends="prepare.unix, prepare.windows" />
+
+    <target name="clear-database" depends="prepare" description="Reset the database to its most basic format">
+    	<sql password="{$db.pass}" userid="{$db.user}" url="{$db.url}" driver="{$db.driver}" classpath="{$db.driver}"
+    		delimiter="/" onerror="stop">
+    		<fileset dir="${database.dir}/reset">
+    			<filename name="*.sql" />
+    		</fileset>
+    	</sql>
+    </target>
+    <target name="create-database" depends="prepare, clear-database" description="Run all the database updates to make sure the update is smooth and has the correct end results.">
+    	<sql password="{$db.pass}" userid="{$db.user}" url="{$db.url}" driver="{$db.driver}" classpath="{$db.driver}"
+    		delimiter="/" onerror="stop">
+    		<fileset dir="${database.dir}/create">
+    			<filename name="*.sql" />
+    		</fileset>
+    	</sql>
+    </target>
+    <target name="update-database" depends="prepare, create-database" description="Runs through all the updates available for the system.">
+    	<sql password="{$db.pass}" userid="{$db.user}" url="{$db.url}" driver="{$db.driver}" classpath="{$db.driver}"
+    		delimiter="/" onerror="stop">
+    		<fileset dir="${database.dir}/update/${project.version}">
+    			<filename name="*.sql" />
+    		</fileset>
+    	</sql>
+    </target>
+    <target name="deploy-database" depends="prepare" description="Pushes all the changes to the ops database">
+    	<antcall target="clear-database" />
+    	<antcall target="create-database" />
+    	<antcall target="update-database" />
+    </target>
+
+    <target name="test" depends="prepare" description="Build the project and run all the tests for CI, but do not push to production code.">
+        <exec executable="${php.execute.dir}phpunit${extension}" failonerror="true">
+        	  <arg line="--configuration ${build.dir}/phpunit.xml" />
+        </exec>
+    </target>
+    <target name="metrics" depends="prepare, test" description="Runs integration/regression testing, plus gathers data about the quality of the code">
+        <antcall target="pdepend" />
+        <antcall target="phpcb" />
+        <antcall target="phpcpd" />
+        <antcall target="phpcs" />
+        <antcall target="docblox" />
+        <antcall target="phploc" />
+        <antcall target="phpmd" />
+    </target>
+    <target name="pdepend" depends="prepare">
+        <exec executable="${php.execute.dir}pdepend${extension}">
+            <arg line="--jdepend-xml=${build.dir}/logs/jdepend.xml
+                --jdepend-chart=${build.dir}/pdepend/dependencies.svg
+                --overview-pyramid=${build.dir}/pdepend/overview-pyramid.svg
+                ${source.dir}"
+            />
+        </exec>
+    </target>
+    <target name="phpcb" depends="prepare">
+        <exec executable="${php.execute.dir}phpcb${extension}">
+            <arg line="--log    ${build.dir}/logs
+                --source ${source.dir}
+                --output ${build.dir}/code-browser" />
+        </exec>
+    </target>
+    <target name="phpcpd" depends="prepare">
+        <exec executable="${php.execute.dir}phpcpd${extension}">
+            <arg line="--log-pmd ${build.dir}/logs/pmd-cpd.xml ${source.dir}" />
+        </exec>
+    </target>
+    <target name="phpcs" depends="prepare">
+        <exec executable="${php.execute.dir}phpcs${extension}">
+            <arg line="--report=checkstyle
+                --report-file=${build.dir}/logs/checkstyle.xml
+                --standard=PEAR
+                ${source.dir}"
+            />
+        </exec>
+    </target>
+    <target name="docblox" depends="prepare">
+        <exec executable="${php.execute.dir}docblox${extension}">
+            <arg line="-d ${source.dir} -t ${build.dir}/api --title IceCreamCMS" />
+        </exec>
+    </target>
+    <target name="phploc" depends="prepare">
+        <exec executable="${php.execute.dir}phploc${extension}">
+            <arg line="--log-csv ${build.dir}/logs/phploc.csv ${source.dir}" />
+        </exec>
+    </target>
+    <target name="phpmd" depends="prepare">
+        <exec executable="${php.execute.dir}phpmd${extension}">
+            <arg line="${source.dir} xml codesize,design,naming,unusedcode
+                --reportfile ${build.dir}/logs/pmd.xml"
+            />
+        </exec>
+    </target>
+    <target name="deploy" depends="prepare" description="Push all code to production side">
+        <antcall target="clean" />
+        <antcall target="test" />
+        <antcall target="deploy-database"/>
+        <antcall target="metrics" />
+    </target>
+</project>
