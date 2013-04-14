@@ -1,11 +1,7 @@
 SB-ORM
 ======
 ## Introduction
-<<<<<<< HEAD
 The ShiftedBits ORM is to ease the development of database-assisted technologies. In doing so, it will ensure that the developer gets the data they require in a quick and easily accessible way.
-=======
-The ShiftedBits ORM is to ease the development of database-assisted technologies. In doing so, it will ensure that the developer gets the data they require in a quick and easily accessible way.
->>>>>>> 6737d4e12ceb50315595a5f177da99bdca51ac08
 
 ## Requirements
 * The ORM will provide data security measures to prevent most attack vectors to leak database data through abuse of the system the ORM is supporting (known as SQL Injection Attacks). It does not know all vectors, and not all vectors can be handled by the ORM, but it will do it's best.
