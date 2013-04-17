@@ -49,9 +49,14 @@ class Database
     /**
      * Creates the Database Handler Resource using the appropriate details.
      */
-    public function __construct($settings)
+    public function __construct()
     {
         $this->_counter = 0;
+        $this->_dbh = NULL;
+    }
+
+    public function init($settings)
+    {
         $host           = $settings['host'];
         $dbname         = $settings['dbname'];
         $user           = $settings['user'];
