@@ -7,7 +7,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->_database = new Database($GLOBALS['settings']['database']);
+        $this->_database = new Database();
+        $this->_database->init($GLOBALS['settings']['database']);
     }
 
     public function tearDown()
@@ -25,7 +26,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
         $settings['user']   = 'user';
         $settings['pass']   = 'password';
         try {
-            $db = new Database($settings);
+            $db = new Database();
+            $db->init($settings);
         } catch (PDOException $e) {
             $this->assertInstanceOf("PDOException", $e);
         }

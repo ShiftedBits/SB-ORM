@@ -7,7 +7,8 @@ class TableMockTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $db               = new Database($GLOBALS['settings']['database']);
+        $db = new Database();
+        $db->init($GLOBALS['settings']['database']);
         $this->_tableMock = new TableMock('tst_tmoc_table_mock', $db);
     }
 
