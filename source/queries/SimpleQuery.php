@@ -32,7 +32,7 @@
  * @license    http://creativecommons.org/publicdomain/mark/1.0/ Public Domain
  * @link       http://www.shiftedbits.net/
  */
-class Query
+class SimpleQuery extends Query
 {
 
     /**
@@ -58,29 +58,18 @@ class Query
      * @var String
      */
     private $_key;
-    private $_sql;
-    private $_parameters;
-    private $_autorun;
-    private $_filters;
-    private $_clauses;
-    private $_sources;
 
     /**
      * Creates the object correctly.
      * @param TableMock $tableMock Mock instance of the table we're manipulating
      */
-    public function __construct(TableMock $tableMock, Database $connection)
+    public function __construct($tableName, Database $connection)
     {
-        $this->_mock       = $tableMock;
-        $this->_connection = $connection;
-        $this->_table      = $this->_mock->getTableName();
-        $this->_key        = $this->_mock->getPrimaryKey();
-        $this->_sql        = array();
-        $this->_parameters = array();
-        $this->_autorun = TRUE;
-        $this->_filters = array();
-        $this->_clauses = array();
-        $this->_sources = array($tableMock);
+        parent::__construct($connection);
+        $this->_addTable($tableName);
+        $tableMock = new TableMock($tableName, $connection);
+        $this->_table      = $tableName;
+        $this->_key        = $tableMock->getPrimaryKey();
     }
 
     /**
@@ -118,7 +107,7 @@ class Query
         $this->_sql[] = sprintf($sql, $this->_table, $this->_key);
 
         $parameters = array(array($this->_key          => $id));
-        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        $this->_parameters[] = $this->parameterize($parameters);
     }
 
     /**
@@ -137,7 +126,7 @@ class Query
         foreach ($ids as $id) {
             $parameters[] = array($this->_key          => $id);
         }
-        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        $this->_parameters[] = $this->parameterize($parameters);
     }
 
     /**
@@ -151,7 +140,7 @@ class Query
         $sql          = "SELECT * FROM `%s` WHERE `%s` = ?";
         $this->_sql[] = sprintf($sql, $this->_table, $column);
         $parameters   = array(array($column              => $value));
-        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        $this->_parameters[] = $this->parameterize($parameters);
     }
 
     /**
@@ -167,7 +156,6 @@ class Query
         $this->_parameters[] = array();
         return $this->run();
     }
-
     /**
      * Takes an array of data and pushes it into the appropriate table.
      * @param array $data A key map of input data to be put into the database.
@@ -188,7 +176,7 @@ class Query
         $sql          = "INSERT INTO `%s` (`%s`) VALUES (%s)";
         $this->_sql[] = sprintf($sql, $this->_table, $columns, $placeholders);
 
-        $this->_parameters[] = $this->_mock->parameterize($values);
+        $this->_parameters[] = $this->parameterize($values);
 
         return $this->run();
     }
@@ -214,10 +202,11 @@ class Query
         $sql          = "INSERT INTO `%s` (`%s`) VALUES (%s)";
         $this->_sql[] = sprintf($sql, $this->_table, $columns, $places);
 
-        $this->_parameters[] = $this->_mock->parameterize($data);
+        $this->_parameters[] = $this->parameterize($data);
 
         return $this->run();
     }
+
 
     /**
      * Updates a set row within the database.
@@ -232,7 +221,7 @@ class Query
             $sql, $this->_table, $column, $this->_key, $id
         );
         $parameters   = array(array($column => $data[$column]), array($this->_key          => $id));
-        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        $this->_parameters[] = $this->parameterize($parameters);
         return $this->run();
     }
 
@@ -253,7 +242,7 @@ class Query
         foreach ($ids as $id) {
             $parameters[] = array($this->_key          => $id);
         }
-        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        $this->_parameters[] = $this->parameterize($parameters);
         return $this->run();
     }
 
@@ -266,7 +255,7 @@ class Query
         $sql          = "DELETE FROM `%s` WHERE `%s` = ?";
         $this->_sql[] = sprintf($sql, $this->_table, $this->_key);
         $parameters   = array(array($this->_key          => $id));
-        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        $this->_parameters[] = $this->parameterize($parameters);
         return $this->run();
     }
 
@@ -285,41 +274,8 @@ class Query
         foreach ($ids as $id) {
             $parameters[] = array($this->_key          => $id);
         }
-        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        $this->_parameters[] = $this->parameterize($parameters);
         return $this->run();
-    }
-
-    public function run($override = FALSE)
-    {
-
-        $returns = array();
-        $error = FALSE;
-        try {
-            $this->_connection->beginTransaction();
-            if ($override === TRUE OR $this->_autorun === TRUE) {
-                foreach ($this->_sql as $index => $statement) {
-                    $parameters = $this->_parameters[$index];
-                    $returns[]  = $this->_connection->run($statement, $parameters);
-                }
-            }
-        } catch (PDOException $pdoe) {
-            $error = TRUE;
-            $this->_connection->rollback();
-        }
-        if ($error === FALSE) {
-            $this->_connection->commit();
-        }
-        $this->_parameters = array();
-        $this->_sql = array();
-        if (sizeof($returns) === 1) {
-            if (sizeof($returns[0]) === 1) {
-                return $returns[0][0];
-            } else {
-                return $returns[0];
-            }
-        } else {
-            return $returns;
-        }
     }
 
 }

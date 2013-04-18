@@ -88,6 +88,11 @@ class TableMock
         return $this->_primaryKey;
     }
 
+    public function getColumnType($name)
+    {
+        return $this->_columns[$name];
+    }
+
     /**
      * Checks to see if the given column name is part of the mocked table.
      * @param String $name Name of the column we're checking.
@@ -96,25 +101,6 @@ class TableMock
     public function isColumn($name)
     {
         return array_key_exists($name, $this->_columns);
-    }
-
-    /**
-     * Auto-parameterizes data to allow for usage prepared sql statements.
-     * @param Array $data Array of data to be parameterized.
-     * @return Array Array allowing prepared sql statements to run with vars.
-     */
-    public function parameterize($data)
-    {
-        $ret = array();
-        foreach ($data as $key => $value) {
-            $c = array_keys($value)[0];
-            $v = $value[$c];
-            $ret[$key] = array(
-                'type'  => $this->_columns[$c],
-                'value' => $v
-            );
-        }
-        return $ret;
     }
 
     /**
