@@ -2,12 +2,12 @@
 <phpunit backupGlobals="false" backupStaticAttributes="false" strict="true" verbose="true" bootstrap="../bootstrap.php">
     <testsuites>
         <testsuite>
-            <directory>../tests/framework/orm</directory>
+            <directory>../tests</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist>
-            <directory>../framework</directory>
+            <directory>../source</directory>
         </whitelist>
         <blacklist>
             <directory>../build</directory>

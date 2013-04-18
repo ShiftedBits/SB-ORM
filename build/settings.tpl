@@ -2,7 +2,7 @@
 
 $GLOBALS['settings'] = array(
     'paths' => array(
-        ROOT . D . 'framework' . D . 'orm',
+        ROOT . D . 'source',
     ),
     'database' => array(
         'host'    => '${database.host}',
