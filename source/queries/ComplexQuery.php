@@ -69,21 +69,38 @@ class ComplexQuery extends Query
         return $this;
     }
 
-    public function finish()
+    private function _prep()
     {
-        foreach ($this->_filters as $f) {
-            $this->_currentSql .= $f->render();
+        if (count($this->_filters) > 0) {
+            foreach ($this->_filters as $f) {
+                $this->_currentSql .= $f->render();
+            }
+        } else {
+            $this->_currentSql .= "* ";
         }
         foreach ($this->_sources as $s) {
             $this->_currentSql .= $s->render();
         }
         foreach ($this->_clauses as $c) {
             $this->_currentSql .= $c->render();
-            $this->_currentParameters += $c->parameters();
+            $params = $c->parameters();
+            foreach ($params as $p) {
+                $this->_currentParameters[] = $p;
+            }
         }
-        $this->_parameters[] = $this->_parameterize($this->_currentParameters);
-        $this->_sql[]               = $this->_currentSql;
-        $this->_parameters[]        = $this->_currentParameters;
+    }
+
+    public function dump()
+    {
+        $this->_prep();
+        return array($this->_currentSql, $this->_currentParameters);
+    }
+
+    public function finish()
+    {
+        $this->_prep();
+        $this->_sql[]        = $this->_currentSql;
+        $this->_parameters[] = $this->_currentParameters;
         return $this->run();
     }
 

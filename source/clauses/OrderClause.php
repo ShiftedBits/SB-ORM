@@ -3,9 +3,9 @@
 class OrderClause implements Clause
 {
 
-    public function __construct($direction = "DESC")
+    public function __construct($column, $direction = "DESC")
     {
-        $this->_columns = array();
+        $this->_columns = array($column);
         $this->_direction = $direction;
     }
 
@@ -35,12 +35,13 @@ class OrderClause implements Clause
 
     public function render()
     {
-        return "ORDER BY `" . implode("`, `", $this->_columns) . "` " . $this->_direction . " ";
+        $columns = implode("`, `", $this->_columns);
+        return "ORDER BY `$columns` $this->_direction ";
     }
 
     public function parameters()
     {
-        return NULL;
+        return array();
     }
 
 }

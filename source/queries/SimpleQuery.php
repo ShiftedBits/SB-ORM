@@ -66,7 +66,7 @@ class SimpleQuery extends Query
     public function __construct($tableName, Database $connection)
     {
         parent::__construct($connection);
-        $this->_addTable($tableName);
+        $this->addTable($tableName);
         $tableMock = new TableMock($tableName, $connection);
         $this->_table      = $tableName;
         $this->_key        = $tableMock->getPrimaryKey();

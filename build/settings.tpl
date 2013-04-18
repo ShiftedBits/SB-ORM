@@ -6,6 +6,8 @@ $GLOBALS['settings'] = array(
         ROOT . D . 'source' . D . 'clauses',
         ROOT . D . 'source' . D . 'filters',
         ROOT . D . 'source' . D . 'sources',
+        ROOT . D . 'source' . D . 'queries',
+        ROOT . D . 'source' . D . 'support',
     ),
     'database' => array(
         'host'    => '${database.host}',

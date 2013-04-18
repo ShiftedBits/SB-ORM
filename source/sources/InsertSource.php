@@ -1,6 +1,6 @@
 <?php
 
-class TableSource implements Source
+class InsertSource implements Source
 {
 
     private $_table;
@@ -17,7 +17,7 @@ class TableSource implements Source
 
     public function render()
     {
-        return "FROM `" . $this->_table . "` ";
+        return "INTO " . $this->_table . " ";
     }
 
 }

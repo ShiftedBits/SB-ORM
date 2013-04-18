@@ -15,7 +15,7 @@ abstract class Query
         $this->_parameters = array();
         $this->_autorun    = TRUE;
         $this->_connection = $connection;
-        $this->_tables = array();
+        $this->_tables     = array();
     }
 
     public function run($override = FALSE)
@@ -51,7 +51,7 @@ abstract class Query
         }
     }
 
-    protected function _addTable($name)
+    public function addTable($name)
     {
         $tm              = new TableMock($name, $this->_connection);
         $this->_tables[] = $tm;
@@ -59,11 +59,13 @@ abstract class Query
 
     private function _getColumnType($name)
     {
+        $type = null;
         foreach ($this->_tables as $table) {
-            if($table->isColumn($name)) {
-                return $table->getColumnType($name);
+            if ($table->isColumn($name)) {
+                $type = $table->getColumnType($name);
             }
         }
+        return $type;
     }
 
     /**
