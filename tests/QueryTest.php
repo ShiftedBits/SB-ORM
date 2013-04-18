@@ -1,6 +1,6 @@
 <?php
 
-class SimpleQueryTest extends PHPUnit_Framework_TestCase
+class QueryTest extends PHPUnit_Framework_TestCase
 {
     private $_sq;
     private $_db;
@@ -9,7 +9,7 @@ class SimpleQueryTest extends PHPUnit_Framework_TestCase
         $this->_db = new Database();
         $this->_db->init($GLOBALS['settings']['database']);
         $tm = new TableMock('tst_sque_simple_query', $this->_db);
-        $this->_sq = new SimpleQuery($tm, $this->_db);
+        $this->_sq = new Query($tm, $this->_db);
         $this->_sq->post(array('sque_id' => 1, 'sque_value' => 1));
         $this->_sq->post(array('sque_id' => 2, 'sque_value' => 2));
     }
@@ -24,7 +24,7 @@ class SimpleQueryTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf('SimpleQuery', $this->_sq);
+        $this->assertInstanceOf('Query', $this->_sq);
     }
 
     /**
