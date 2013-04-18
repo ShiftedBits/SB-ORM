@@ -111,7 +111,7 @@ class TableMock
     {
         $results = $this->_database->fetch("DESC {$this->_name}");
         foreach ($results as $desc) {
-            $this->_columns[$desc['Field']] = $this->_getType($desc['Type']);
+            $this->_columns[$desc['Field']] = self::getType($desc['Type']);
             if ($desc['Key'] == 'PRI') {
                 $this->_primaryKey = $desc['Field'];
             }
@@ -123,9 +123,9 @@ class TableMock
      * @param String $type MySQL-returned column type that we're analyzing.
      * @return int PDO Parameter placeholder type.
      */
-    private function _getType($type)
+    public static function getType($type)
     {
-        if (preg_match("(int|decimal|float|double|bit)", $type)) {
+        if (preg_match("(int|integer|decimal|float|double|bit)", $type)) {
             return PDO::PARAM_INT;
         } else if (preg_match("(blob|binary)", $type)) {
             return PDO::PARAM_LOB;

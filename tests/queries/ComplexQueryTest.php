@@ -103,11 +103,9 @@ class ComplexQueryTest extends PHPUnit_Framework_TestCase
 
     public function testAddMultipleSources()
     {
-        $source = new InnerJoinSource("tst_writ_write");
-        $source->addColumns("read_one", "writ_one");
         $dump   = $this->_query->beginGet()
             ->addSource(new TableSource("tst_read_read"))
-            ->addSource($source)
+            ->addSource(new InnerJoinSource("tst_writ_write", "read_one", "writ_one"))
             ->dump();
         $test   = array(
             "SELECT * FROM `tst_read_read` INNER JOIN `tst_writ_write` ON `read_one` = `writ_one` ",
@@ -175,4 +173,46 @@ class ComplexQueryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($test, $rows);
     }
 
+    public function testFullPost()
+    {
+        $source = new InsertSource("tst_read_read");
+        $source->addData(1, 2);
+        $source->addData(3, 4);
+        $source->addData(5, 6);
+        $dump = $this->_query->beginPost()
+             ->addFilter(new ColumnFilter("read_two", "read_three"))
+             ->addDestination(new InsertDestination("tst_read_read"))
+             ->addSource($source)
+             ->dump();
+        $test = array(
+            "INSERT `read_two`, `read_three` INTO `tst_read_read` VALUES (?, ?), (?, ?), (?, ?) ",
+            array(
+                array(
+                    'type' => PDO::PARAM_INT,
+                    'value' => 1
+                ),
+                array(
+                    'type' => PDO::PARAM_INT,
+                    'value' => 2
+                ),
+                array(
+                    'type' => PDO::PARAM_INT,
+                    'value' => 3
+                ),
+                array(
+                    'type' => PDO::PARAM_INT,
+                    'value' => 4
+                ),
+                array(
+                    'type' => PDO::PARAM_INT,
+                    'value' => 5
+                ),
+                array(
+                    'type' => PDO::PARAM_INT,
+                    'value' => 6
+                ),
+            )
+        );
+        $this->assertEquals($test, $dump);
+    }
 }

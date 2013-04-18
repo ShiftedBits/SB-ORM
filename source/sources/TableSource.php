@@ -20,4 +20,8 @@ class TableSource implements Source
         return "FROM `" . $this->_table . "` ";
     }
 
+    public function parameters()
+    {
+        return array();
+    }
 }

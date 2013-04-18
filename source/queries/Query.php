@@ -40,8 +40,8 @@ abstract class Query
         }
         $this->_parameters = array();
         $this->_sql = array();
-        if (sizeof($returns) === 1) {
-            if (sizeof($returns[0]) === 1) {
+        if (count($returns) === 1) {
+            if (count($returns[0]) === 1) {
                 return $returns[0][0];
             } else {
                 return $returns[0];

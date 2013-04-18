@@ -7,21 +7,21 @@ class InnerJoinSource implements Source
     private $_statements;
     private $_operator;
 
-    public function __construct($table)
+    public function __construct($table, $columnOne, $columnTwo)
     {
         $this->_table = $table;
-    }
-
-    public function addColumns($one, $two, $op = "=")
-    {
-        $this->_statements = array($one, $two);
-        $this->_operator = $op;
-        return $this;
+        $this->_statements = array($columnOne, $columnTwo);
+        $this->_operator = "=";
     }
 
     public function getTableName()
     {
         return $this->_table;
+    }
+
+    public function setOperator($op)
+    {
+        $this->_operator = $op;
     }
 
     public function render()
@@ -31,6 +31,11 @@ class InnerJoinSource implements Source
         $sql .= $this->_operator . " ";
         $sql .= "`" . $this->_statements[1] . "` ";
         return $sql;
+    }
+
+    public function parameters()
+    {
+        return array();
     }
 
 }
