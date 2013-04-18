@@ -29,7 +29,7 @@
  * @license    http://creativecommons.org/publicdomain/mark/1.0/ Public Domain
  * @link       http://www.shiftedbits.net/
  */
-class SimpleQuery
+class SimpleQuery implements Query
 {
 
     /**
@@ -55,6 +55,9 @@ class SimpleQuery
      * @var String
      */
     private $_key;
+    private $_sql;
+    private $_parameters;
+    private $_autorun;
 
     /**
      * Creates the object correctly.
@@ -66,6 +69,9 @@ class SimpleQuery
         $this->_connection = $connection;
         $this->_table      = $this->_mock->getTableName();
         $this->_key        = $this->_mock->getPrimaryKey();
+        $this->_sql        = array();
+        $this->_parameters = array();
+        $this->_autorun = TRUE;
     }
 
     /**
@@ -78,17 +84,18 @@ class SimpleQuery
         $args = func_get_args();
         if (count($args) === 1) {
             if (is_array($args[0])) {
-                return $this->_getByIds($args[0]);
+                $this->getByIds($args[0]);
             } else {
-                return $this->_getById($args[0]);
+                $this->getById($args[0]);
             }
         } else {
             if (is_string($args[0])) {
-                return $this->_getByColumn($args[0], $args[1]);
+                $this->getByColumn($args[0], $args[1]);
             } else {
-                return $this->_getByIds($args);
+                $this->getByIds($args);
             }
         }
+        return $this->run();
     }
 
     /**
@@ -96,15 +103,13 @@ class SimpleQuery
      * @param int $id Id of the row we're picking.
      * @return Array Array of the row we're retrieving.
      */
-    private function _getById($id)
+    public function getById($id)
     {
-        $sql = "SELECT * FROM `%s` WHERE `%s` = ?";
-        $sql = sprintf($sql, $this->_table, $this->_key);
+        $sql          = "SELECT * FROM `%s` WHERE `%s` = ?";
+        $this->_sql[] = sprintf($sql, $this->_table, $this->_key);
 
-        $parameters = array(array($this->_key => $id));
-        $parameters = $this->_mock->parameterize($parameters);
-
-        return $this->_connection->fetch($sql, $parameters);
+        $parameters = array(array($this->_key          => $id));
+        $this->_parameters[] = $this->_mock->parameterize($parameters);
     }
 
     /**
@@ -112,20 +117,18 @@ class SimpleQuery
      * @param Array $ids Ids of all the rows we want.
      * @return Array Array of the row we're retrieving.
      */
-    public function _getByIds($ids)
+    public function getByIds($ids)
     {
-        $sql    = "SELECT * FROM `%s` WHERE `%s` IN (%s)";
-        $array  = array_fill(0, count($ids), "?");
-        $places = implode(",", $array);
-        $sql    = sprintf($sql, $this->_table, $this->_key, $places);
+        $sql          = "SELECT * FROM `%s` WHERE `%s` IN (%s)";
+        $array        = array_fill(0, count($ids), "?");
+        $places       = implode(",", $array);
+        $this->_sql[] = sprintf($sql, $this->_table, $this->_key, $places);
 
         $parameters = array();
         foreach ($ids as $id) {
-            $parameters[] = array($this->_key => $id);
+            $parameters[] = array($this->_key          => $id);
         }
-        $parameters = $this->_mock->parameterize($parameters);
-
-        return $this->_connection->fetch($sql, $parameters);
+        $this->_parameters[] = $this->_mock->parameterize($parameters);
     }
 
     /**
@@ -134,13 +137,12 @@ class SimpleQuery
      * @param mixed Value given.
      * @return Array Array of the row(s) we're retrieving.
      */
-    public function _getByColumn($column, $value)
+    public function getByColumn($column, $value)
     {
-        $sql        = "SELECT * FROM `%s` WHERE `%s` = ?";
-        $sql        = sprintf($sql, $this->_table, $column);
-        $parameters = array(array($column     => $value));
-        $parameters = $this->_mock->parameterize($parameters);
-        return $this->_connection->fetch($sql, $parameters);
+        $sql          = "SELECT * FROM `%s` WHERE `%s` = ?";
+        $this->_sql[] = sprintf($sql, $this->_table, $column);
+        $parameters   = array(array($column              => $value));
+        $this->_parameters[] = $this->_mock->parameterize($parameters);
     }
 
     /**
@@ -151,10 +153,10 @@ class SimpleQuery
      */
     public function getAll()
     {
-        $sql = "SELECT * FROM `%s`";
-        $sql = sprintf($sql, $this->_table);
-
-        return $this->_connection->fetch($sql);
+        $sql                 = "SELECT * FROM `%s`";
+        $this->_sql[]        = sprintf($sql, $this->_table);
+        $this->_parameters[] = array();
+        return $this->run();
     }
 
     /**
@@ -174,12 +176,12 @@ class SimpleQuery
             $values[] = array($k => $v);
         }
 
-        $sql = "INSERT INTO `%s` (`%s`) VALUES (%s)";
-        $sql = sprintf($sql, $this->_table, $columns, $placeholders);
+        $sql          = "INSERT INTO `%s` (`%s`) VALUES (%s)";
+        $this->_sql[] = sprintf($sql, $this->_table, $columns, $placeholders);
 
-        $parameters = $this->_mock->parameterize($values);
+        $this->_parameters[] = $this->_mock->parameterize($values);
 
-        $this->_connection->run($sql, $parameters);
+        return $this->run();
     }
 
     /**
@@ -200,12 +202,12 @@ class SimpleQuery
         $columns = implode("`, `", $columns);
         $places  = implode("), (", $places);
 
-        $sql = "INSERT INTO `%s` (`%s`) VALUES (%s)";
-        $sql = sprintf($sql, $this->_table, $columns, $places);
+        $sql          = "INSERT INTO `%s` (`%s`) VALUES (%s)";
+        $this->_sql[] = sprintf($sql, $this->_table, $columns, $places);
 
-        $parameters = $this->_mock->parameterize($data);
+        $this->_parameters[] = $this->_mock->parameterize($data);
 
-        $this->_connection->run($sql, $parameters);
+        return $this->run();
     }
 
     /**
@@ -215,14 +217,14 @@ class SimpleQuery
      */
     public function put($id, $data)
     {
-        $column     = array_keys($data)[0];
-        $sql        = "UPDATE `%s` SET `%s` = ? WHERE `%s` = ?";
-        $sql        = sprintf(
+        $column       = array_keys($data)[0];
+        $sql          = "UPDATE `%s` SET `%s` = ? WHERE `%s` = ?";
+        $this->_sql[] = sprintf(
             $sql, $this->_table, $column, $this->_key, $id
         );
-        $parameters = array(array($column => $data[$column]), array($this->_key => $id));
-        $parameters = $this->_mock->parameterize($parameters);
-        $this->_connection->run($sql, $parameters);
+        $parameters   = array(array($column => $data[$column]), array($this->_key          => $id));
+        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        return $this->run();
     }
 
     /**
@@ -235,15 +237,15 @@ class SimpleQuery
         $sql          = "UPDATE `%s` SET `%s` = ? WHERE `%s` IN (%s)";
         $column       = array_keys($data)[0];
         $placeholders = implode(", ", array_fill(0, count($ids), "?"));
-        $sql          = sprintf($sql, $this->_table, $column, $this->_key, $placeholders);
+        $this->_sql[] = sprintf($sql, $this->_table, $column, $this->_key, $placeholders);
         $parameters   = array(
             array($column => $data[$column])
         );
         foreach ($ids as $id) {
-            $parameters[] = array($this->_key => $id);
+            $parameters[] = array($this->_key          => $id);
         }
-        $parameters = $this->_mock->parameterize($parameters);
-        $this->_connection->run($sql, $parameters);
+        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        return $this->run();
     }
 
     /**
@@ -252,11 +254,11 @@ class SimpleQuery
      */
     public function delete($id)
     {
-        $sql        = "DELETE FROM `%s` WHERE `%s` = ?";
-        $sql        = sprintf($sql, $this->_table, $this->_key);
-        $parameters = array(array($this->_key => $id));
-        $parameters = $this->_mock->parameterize($parameters);
-        $this->_connection->run($sql, $parameters);
+        $sql          = "DELETE FROM `%s` WHERE `%s` = ?";
+        $this->_sql[] = sprintf($sql, $this->_table, $this->_key);
+        $parameters   = array(array($this->_key          => $id));
+        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        return $this->run();
     }
 
     /**
@@ -268,14 +270,47 @@ class SimpleQuery
         $placeholders = array_fill(0, count($ids), "?");
         $placeholders = implode(", ", $placeholders);
 
-        $sql        = "DELETE FROM `%s` WHERE `%s` IN (%s)";
-        $sql        = sprintf($sql, $this->_table, $this->_key, $placeholders);
-        $parameters = array();
+        $sql          = "DELETE FROM `%s` WHERE `%s` IN (%s)";
+        $this->_sql[] = sprintf($sql, $this->_table, $this->_key, $placeholders);
+        $parameters   = array();
         foreach ($ids as $id) {
-            $parameters[] = array($this->_key => $id);
+            $parameters[] = array($this->_key          => $id);
         }
-        $parameters = $this->_mock->parameterize($parameters);
-        $this->_connection->run($sql, $parameters);
+        $this->_parameters[] = $this->_mock->parameterize($parameters);
+        return $this->run();
+    }
+
+    public function run($override = FALSE)
+    {
+
+        $returns = array();
+        $error = FALSE;
+        try {
+            $this->_connection->beginTransaction();
+            if ($override === TRUE OR $this->_autorun === TRUE) {
+                foreach ($this->_sql as $index => $statement) {
+                    $parameters = $this->_parameters[$index];
+                    $returns[]  = $this->_connection->run($statement, $parameters);
+                }
+            }
+        } catch (PDOException $pdoe) {
+            $error = TRUE;
+            $this->_connection->rollback();
+        }
+        if ($error === FALSE) {
+            $this->_connection->commit();
+        }
+        $this->_parameters = array();
+        $this->_sql = array();
+        if (sizeof($returns) === 1) {
+            if (sizeof($returns[0]) === 1) {
+                return $returns[0][0];
+            } else {
+                return $returns[0];
+            }
+        } else {
+            return $returns;
+        }
     }
 
 }

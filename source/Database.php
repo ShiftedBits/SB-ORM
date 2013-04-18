@@ -52,17 +52,18 @@ class Database
     public function __construct()
     {
         $this->_counter = 0;
-        $this->_dbh = NULL;
+        $this->_dbh     = NULL;
     }
 
     public function init($settings)
     {
-        $host           = $settings['host'];
-        $dbname         = $settings['dbname'];
-        $user           = $settings['user'];
-        $password       = $settings['pass'];
-        $dsn            = "mysql:host=$host;dbname=$dbname";
-        $this->_dbh     = new PDO($dsn, $user, $password);
+        $host       = $settings['host'];
+        $dbname     = $settings['dbname'];
+        $user       = $settings['user'];
+        $password   = $settings['pass'];
+        $dsn        = "mysql:host=$host;dbname=$dbname";
+        $this->_dbh = new PDO($dsn, $user, $password);
+        $this->_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     /**
@@ -80,26 +81,37 @@ class Database
      * @param array $parameters The parameters (if any) to the statement.
      * @return array The rows returned (if any).
      */
-    public function fetch($sql, $parameters = array())
-    {
-        $this->_incrementCounter();
-        $statement = $this->_prepare($sql, $parameters);
-        $statement->execute();
-        $results   = $statement->fetchAll(PDO::FETCH_ASSOC);
-        return $results;
-    }
-
-    /**
-     * Runs any query, not worrying about any return results.
-     *
-     * @param type $sql The SQL query to be run
-     * @param type $parameters The parameters (if any) to the statement
-     */
     public function run($sql, $parameters = array())
     {
         $this->_incrementCounter();
         $statement = $this->_prepare($sql, $parameters);
         $statement->execute();
+        try {
+            $results   = $statement->fetchAll(PDO::FETCH_ASSOC);
+            return $results;
+        } catch (PDOException $pdoe) {
+            //Do Nothing. Nothing to return.
+        }
+    }
+
+    public function fetch($sql, $parameters = array())
+    {
+        return $this->run($sql, $parameters);
+    }
+
+    public function beginTransaction()
+    {
+        $this->_dbh->beginTransaction();
+    }
+
+    public function commit()
+    {
+        $this->_dbh->commit();
+    }
+
+    public function rollback()
+    {
+        $this->_dbh->rollBack();
     }
 
     /**

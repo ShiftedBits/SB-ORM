@@ -34,12 +34,10 @@ class SimpleQueryTest extends PHPUnit_Framework_TestCase
     {
         $rows = $this->_sq->get(1);
         $test = array(
-            0 => array(
-                'sque_id' => '1',
-                'sque_value' => '1',
-                'sque_active' => '1',
-                'sque_locked' => '1'
-            )
+            'sque_id' => '1',
+            'sque_value' => '1',
+            'sque_active' => '1',
+            'sque_locked' => '1'
         );
         $this->assertEquals($test, $rows);
     }
@@ -97,12 +95,10 @@ class SimpleQueryTest extends PHPUnit_Framework_TestCase
     {
         $rows = $this->_sq->get('sque_value', 2);
         $test = array(
-            0 => array(
-                'sque_id' => '2',
-                'sque_value' => '2',
-                'sque_active' => '1',
-                'sque_locked' => '1'
-            )
+            'sque_id' => '2',
+            'sque_value' => '2',
+            'sque_active' => '1',
+            'sque_locked' => '1'
         );
         $this->assertEquals($test, $rows);
     }
@@ -141,12 +137,10 @@ class SimpleQueryTest extends PHPUnit_Framework_TestCase
         $this->_sq->post($data);
         $rows = $this->_sq->get(3);
         $test = array(
-            0 => array(
-                'sque_id' => '3',
-                'sque_value' => '3',
-                'sque_active' => '1',
-                'sque_locked' => '1'
-            )
+            'sque_id' => '3',
+            'sque_value' => '3',
+            'sque_active' => '1',
+            'sque_locked' => '1'
         );
         $this->assertEquals($test, $rows);
     }
@@ -208,12 +202,10 @@ class SimpleQueryTest extends PHPUnit_Framework_TestCase
         $this->_sq->put(1, $data);
         $rows = $this->_sq->get(1);
         $test = array(
-            0 => array(
-                'sque_id' => '1',
-                'sque_value' => '2',
-                'sque_active' => '1',
-                'sque_locked' => '1'
-            )
+            'sque_id' => '1',
+            'sque_value' => '2',
+            'sque_active' => '1',
+            'sque_locked' => '1'
         );
         $this->assertEquals($test, $rows);
     }
@@ -279,12 +271,10 @@ class SimpleQueryTest extends PHPUnit_Framework_TestCase
         $this->_sq->delete(1);
         $rows = $this->_sq->getAll();
         $test = array(
-            0 => array(
-                'sque_id' => '2',
-                'sque_value' => '2',
-                'sque_active' => '1',
-                'sque_locked' => '1'
-            ),
+            'sque_id' => '2',
+            'sque_value' => '2',
+            'sque_active' => '1',
+            'sque_locked' => '1'
         );
         $this->assertEquals($test, $rows);
     }
