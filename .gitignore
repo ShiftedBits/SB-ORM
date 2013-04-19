@@ -3,3 +3,7 @@ logs/
 settings.php
 build/build/
 build/build.properties
+build/api/
+build/code-browser/
+build/pdepend/
+*~

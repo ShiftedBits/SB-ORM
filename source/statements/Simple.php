@@ -32,7 +32,7 @@
  * @license    http://creativecommons.org/publicdomain/mark/1.0/ Public Domain
  * @link       http://www.shiftedbits.net/
  */
-class SimpleQuery extends Query
+class Simple extends Statement
 {
 
     /**

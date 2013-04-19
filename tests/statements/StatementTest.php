@@ -1,13 +1,17 @@
 <?php
-include "TestQuery.php";
-class QueryTest extends PHPUnit_Framework_TestCase
+
+include "TestStatement.php";
+
+class StatementTest extends PHPUnit_Framework_TestCase
 {
+
     private $_query;
+
     public function setUp()
     {
-        $db = new Database();
+        $db           = new Database();
         $db->init($GLOBALS['settings']['database']);
-        $this->_query = new TestQuery($db);
+        $this->_query = new TestStatement($db);
     }
 
     public function tearDown()
@@ -17,16 +21,19 @@ class QueryTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("TestQuery", $this->_query);
+        $this->assertInstanceOf("TestStatement", $this->_query);
     }
 
     public function testBadSql()
     {
         $this->_query->passthrough("SELECT * FROM bad_table");
-        $rows = $this->_query->run();
-        $test = array();
-        $this->assertEquals($test, $rows);
+        try {
+            $rows = $this->_query->run();
+        } catch (PDOException $pdoe) {
+            $this->assertInstanceOf("PDOException", $pdoe);
+        }
     }
+
     public function testParameterize()
     {
         $this->_query->addTable('tst_tmoc_table_mock');
@@ -53,4 +60,5 @@ class QueryTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($params, $test);
     }
+
 }

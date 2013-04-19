@@ -1,6 +1,6 @@
 <?php
 
-abstract class Query
+abstract class Statement
 {
 
     protected $_sql;
@@ -20,9 +20,7 @@ abstract class Query
 
     public function run($override = FALSE)
     {
-
         $returns = array();
-        $error = FALSE;
         try {
             $this->_connection->beginTransaction();
             if ($override === TRUE OR $this->_autorun === TRUE) {
@@ -32,12 +30,10 @@ abstract class Query
                 }
             }
         } catch (PDOException $pdoe) {
-            $error = TRUE;
             $this->_connection->rollback();
+            throw $pdoe;
         }
-        if ($error === FALSE) {
-            $this->_connection->commit();
-        }
+        $this->_connection->commit();
         $this->_parameters = array();
         $this->_sql = array();
         if (count($returns) === 1) {

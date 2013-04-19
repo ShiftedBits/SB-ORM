@@ -1,6 +1,6 @@
 <?php
 
-class TestQuery extends Query
+class TestStatement extends Statement
 {
     //This class does nothing except for allow for the testing of the public
     //functions of the Query super-class.
