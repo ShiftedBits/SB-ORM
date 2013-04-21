@@ -6,7 +6,7 @@ class Select extends Complex
     public function render()
     {
         $sql = "SELECT ";
-        if (array_key_exists($this->_filters, 0)) {
+        if (array_key_exists(0, $this->_filters)) {
             foreach ($this->_filters as $f) {
                 $sql .= $f->render();
             }
@@ -24,11 +24,6 @@ class Select extends Complex
             $this->_addParameters($c->parameters());
         }
         return $sql;
-    }
-
-    public function parameters()
-    {
-        return array();
     }
 
 }

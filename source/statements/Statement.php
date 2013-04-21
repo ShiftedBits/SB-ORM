@@ -8,6 +8,11 @@ abstract class Statement
     private $_autorun;
     private $_connection;
     private $_tables;
+    private $_returnType;
+
+    const RETURN_FULL     = 1;
+    const RETURN_ARRAY    = 2;
+    const RETURN_FILTERED = 3;
 
     public function __construct(Database $connection)
     {
@@ -16,6 +21,7 @@ abstract class Statement
         $this->_autorun    = TRUE;
         $this->_connection = $connection;
         $this->_tables     = array();
+        $this->_returnType = self::RETURN_FILTERED;
     }
 
     public function run($override = FALSE)
@@ -36,15 +42,60 @@ abstract class Statement
         $this->_connection->commit();
         $this->_parameters = array();
         $this->_sql = array();
-        if (count($returns) === 1) {
-            if (count($returns[0]) === 1) {
-                return $returns[0][0];
-            } else {
-                return $returns[0];
-            }
-        } else {
+        return $this->_filterReturns($returns);
+    }
+
+    public function setReturnType($type)
+    {
+        $this->_returnType = $type;
+        return $this;
+    }
+
+    private function _filterReturns($returns)
+    {
+        if ($this->_returnType == self::RETURN_FULL) {
             return $returns;
         }
+        if ($this->_returnType == self::RETURN_ARRAY) {
+            if (sizeof($returns) === 1) { //Only one statement returning.
+                if (count($returns[0]) === 1) { //Only one row returned.
+                    return array_values($returns[0][0]);
+                } else { //Return all rows from single statement.
+                    return $returns[0];
+                }
+            } else { //Multiple rows being returned. Return them all.
+                return $returns;
+            }
+        }
+        if ($this->_returnType == self::RETURN_FILTERED) {
+            if (sizeof($returns) === 1) { //Only one statement returning.
+                if (count($returns[0]) === 1) { //Only one row returned.
+                    if (count($returns[0][0]) === 1) { //Only one cell returned.
+                        //Return that value.
+                        return array_values($returns[0][0])[0];
+                    } else { //More than one cell returned.
+                        return $returns[0][0];
+                    }
+                } else { //Multiple rows being returned.
+                    if (count($returns[0][0]) === 1) { //Only one cell per row.
+                        $items = array();
+                        foreach ($returns[0] as $item) {
+                            $items[] = array_values($item)[0];
+                        }
+                        return $items;
+                    } else { //Multiple cells, multiple rows. Return them all.
+                        return $returns[0];
+                    }
+                }
+            } else { //Multiple statements being returned. Return them all.
+                return $returns;
+            }
+        }
+    }
+
+    public function setOption($flag)
+    {
+        $this->_options[] = $flag;
     }
 
     public function addTable($name)

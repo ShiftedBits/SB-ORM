@@ -67,9 +67,9 @@ class Simple extends Statement
     {
         parent::__construct($connection);
         $this->addTable($tableName);
-        $tableMock = new TableMock($tableName, $connection);
-        $this->_table      = $tableName;
-        $this->_key        = $tableMock->getPrimaryKey();
+        $tableMock    = new TableMock($tableName, $connection);
+        $this->_table = $tableName;
+        $this->_key   = $tableMock->getPrimaryKey();
     }
 
     /**
@@ -137,10 +137,22 @@ class Simple extends Statement
      */
     public function getByColumn($column, $value)
     {
-        $sql          = "SELECT * FROM `%s` WHERE `%s` = ?";
-        $this->_sql[] = sprintf($sql, $this->_table, $column);
-        $parameters   = array(array($column              => $value));
-        $this->_parameters[] = $this->parameterize($parameters);
+        if (is_array($value)) {
+            $sql          = "SELECT * FROM `%s` WHERE `%s` IN (%s)";
+            $placesArray  = array_fill(0, count($value), "?");
+            $places       = implode(", ", $placesArray);
+            $this->_sql[] = sprintf($sql, $this->_table, $column, $places);
+            $parameters   = array();
+            foreach ($value as $v) {
+                $parameters[] = array($column => $v);
+            }
+            $this->_parameters[] = $this->parameterize($parameters);
+        } else {
+            $sql          = "SELECT * FROM `%s` WHERE `%s` = ?";
+            $this->_sql[] = sprintf($sql, $this->_table, $column);
+            $parameters   = array(array($column              => $value));
+            $this->_parameters[] = $this->parameterize($parameters);
+        }
     }
 
     /**
@@ -156,6 +168,7 @@ class Simple extends Statement
         $this->_parameters[] = array();
         return $this->run();
     }
+
     /**
      * Takes an array of data and pushes it into the appropriate table.
      * @param array $data A key map of input data to be put into the database.
@@ -206,7 +219,6 @@ class Simple extends Statement
 
         return $this->run();
     }
-
 
     /**
      * Updates a set row within the database.

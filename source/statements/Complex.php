@@ -3,18 +3,15 @@
 abstract class Complex extends Statement
 {
 
-    private $_filters;
-    private $_sources;
-    private $_clauses;
-    private $_destinations;
+    protected $_filters;
+    protected $_sources;
+    protected $_clauses;
+    protected $_destinations;
 
     public function __construct(Database $d)
     {
         parent::__construct($d);
-        $this->_filters = array();
-        $this->_sources = array();
-        $this->_destinations = array();
-        $this->_clauses = array();
+        $this->reset();
     }
 
     public function addFilter(Filter $f)
@@ -43,28 +40,27 @@ abstract class Complex extends Statement
     }
 
 
-    private function _addParameters($parameters)
+    protected function _addParameters($parameters)
     {
         foreach ($parameters as $p) {
             $this->_currentParameters[] = $p;
         }
     }
 
-    private function _begin()
+    public function finish()
+    {
+        $this->_sql[]        = $this->render();
+        $this->_parameters[] = $this->_currentParameters;
+        return $this->run();
+    }
+
+    public function reset()
     {
         $this->_filters = array();
         $this->_sources = array();
         $this->_destinations = array();
         $this->_clauses = array();
+        $this->_currentParameters = array();
     }
-
-    public function finish()
-    {
-        $this->_sql[]        = $this->render();
-        $this->_parameters[] = $this->parameters();
-        return $this->run();
-    }
-
     public abstract function render();
-    public abstract function parameters();
 }
