@@ -81,7 +81,8 @@ abstract class Statement
                         return $returns[0][0];
                     }
                 } else { //Multiple rows being returned.
-                    if (count($returns[0][0]) === 1) { //Only one cell per row.
+                    $values = array_values($returns[0]);
+                    if (count($values[0]) === 1) { //Only one cell per row.
                         $items = array();
                         foreach ($returns[0] as $item) {
                             $items[] = array_values($item)[0];
