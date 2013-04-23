@@ -71,8 +71,12 @@ abstract class Statement
             if (sizeof($returns) === 1) { //Only one statement returning.
                 if (count($returns[0]) === 1) { //Only one row returned.
                     if (count($returns[0][0]) === 1) { //Only one cell returned.
-                        //Return that value.
-                        return array_values($returns[0][0])[0];
+                        $value = array_values($returns[0][0]);
+                        if (empty($value) === TRUE) { //No actual results
+                            return array();
+                        } else { //Return that value.
+                            return $value[0];
+                        }
                     } else { //More than one cell returned.
                         return $returns[0][0];
                     }
