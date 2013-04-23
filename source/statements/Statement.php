@@ -69,14 +69,11 @@ abstract class Statement
         }
         if ($this->_returnType == self::RETURN_FILTERED) {
             if (sizeof($returns) === 1) { //Only one statement returning.
-                if (count($returns[0]) === 1) { //Only one row returned.
+                if (count($returns[0]) === 0) { //No actual results.
+                    return $returns[0];
+                } else if (count($returns[0]) === 1) { //Only one row returned.
                     if (count($returns[0][0]) === 1) { //Only one cell returned.
-                        $value = array_values($returns[0][0]);
-                        if (empty($value) === TRUE) { //No actual results
-                            return array();
-                        } else { //Return that value.
-                            return $value[0];
-                        }
+                        return array_values($returns[0][0])[0];
                     } else { //More than one cell returned.
                         return $returns[0][0];
                     }
