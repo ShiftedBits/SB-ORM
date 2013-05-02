@@ -1,13 +1,15 @@
 <?php
 
+use framework\orm\support\Database;
+use framework\orm\support\Simple;
+
 class SimpleTest extends PHPUnit_Framework_TestCase
 {
     private $_sq;
     private $_db;
     public function setUp()
     {
-        $this->_db = new Database();
-        $this->_db->init($GLOBALS['settings']['database']);
+        $this->_db = new Database($GLOBALS['settings']['database']);
         $this->_sq = new Simple('tst_sque_simple_query', $this->_db);
         $this->_sq->post(array('sque_id' => 1, 'sque_value' => 1));
         $this->_sq->post(array('sque_id' => 2, 'sque_value' => 2));
@@ -23,7 +25,7 @@ class SimpleTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf('Simple', $this->_sq);
+        $this->assertInstanceOf('framework\\orm\\support\\Simple', $this->_sq);
     }
 
     /**

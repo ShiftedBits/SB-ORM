@@ -1,5 +1,8 @@
 <?php
 
+use framework\orm\support\Database;
+use framework\orm\support\TableMock;
+
 class TableMockTest extends PHPUnit_Framework_TestCase
 {
 
@@ -7,9 +10,7 @@ class TableMockTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $db = new Database();
-        $db->init($GLOBALS['settings']['database']);
-        $this->_tableMock = new TableMock('tst_tmoc_table_mock', $db);
+        $this->_tableMock = new TableMock('tst_tmoc_table_mock', Database::getInstance());
     }
 
     public function tearDown()
@@ -19,7 +20,7 @@ class TableMockTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("TableMock", $this->_tableMock);
+        $this->assertInstanceOf("framework\\orm\\support\\TableMock", $this->_tableMock);
     }
 
     public function testGetTableName()

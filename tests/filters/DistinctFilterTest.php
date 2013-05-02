@@ -1,5 +1,7 @@
 <?php
 
+use framework\orm\filters\DistinctFilter;
+
 class DistinctFilterTest extends PHPUnit_Framework_TestCase
 {
 
@@ -17,7 +19,7 @@ class DistinctFilterTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("DistinctFilter", $this->_filter);
+        $this->assertInstanceOf("framework\\orm\\filters\\DistinctFilter", $this->_filter);
     }
 
     public function testRender()

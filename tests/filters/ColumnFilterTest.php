@@ -1,5 +1,7 @@
 <?php
 
+use framework\orm\filters\ColumnFilter;
+
 class ColumnFilterTest extends PHPUnit_Framework_TestCase
 {
 
@@ -17,7 +19,7 @@ class ColumnFilterTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("ColumnFilter", $this->_filter);
+        $this->assertInstanceOf("framework\\orm\\filters\\ColumnFilter", $this->_filter);
     }
 
     public function testRender()

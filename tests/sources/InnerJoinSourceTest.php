@@ -1,8 +1,12 @@
 <?php
 
+use framework\orm\sources\InnerJoinSource;
+
 class InnerJoinSourceTest extends PHPUnit_Framework_TestCase
 {
+
     private $_source;
+
     public function setUp()
     {
         $this->_source = new InnerJoinSource("tst_read_read", "one", "two");
@@ -15,13 +19,13 @@ class InnerJoinSourceTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("InnerJoinSource", $this->_source);
+        $this->assertInstanceOf("framework\\orm\\sources\\InnerJoinSource", $this->_source);
     }
 
     public function testRender()
     {
         $render = $this->_source->render();
-        $test = "INNER JOIN `tst_read_read` ON `one` = `two` ";
+        $test   = "INNER JOIN `tst_read_read` ON `one` = `two` ";
         $this->assertEquals($test, $render);
     }
 
@@ -29,7 +33,7 @@ class InnerJoinSourceTest extends PHPUnit_Framework_TestCase
     {
         $this->_source->setOperator(">");
         $render = $this->_source->render();
-        $test = "INNER JOIN `tst_read_read` ON `one` > `two` ";
+        $test   = "INNER JOIN `tst_read_read` ON `one` > `two` ";
         $this->assertEquals($test, $render);
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+use framework\orm\clauses\LimitClause;
+
 class LimitClauseTest extends PHPUnit_Framework_TestCase
 {
 
@@ -20,8 +22,8 @@ class LimitClauseTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("LimitClause", $this->_clauseOne);
-        $this->assertInstanceOf("LimitClause", $this->_clauseTwo);
+        $this->assertInstanceOf("framework\\orm\\clauses\\LimitClause", $this->_clauseOne);
+        $this->assertInstanceOf("framework\\orm\\clauses\\LimitClause", $this->_clauseTwo);
     }
 
     /**

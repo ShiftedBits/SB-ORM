@@ -1,5 +1,7 @@
 <?php
 
+use framework\orm\clauses\WhereClause;
+
 class WhereClauseTest extends PHPUnit_Framework_TestCase
 {
     private $_clause;

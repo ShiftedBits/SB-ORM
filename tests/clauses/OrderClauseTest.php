@@ -1,5 +1,7 @@
 <?php
 
+use framework\orm\clauses\OrderClause;
+
 class OrderClauseTest extends PHPUnit_Framework_TestCase
 {
     private $_clause;
@@ -15,7 +17,7 @@ class OrderClauseTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("OrderClause", $this->_clause);
+        $this->assertInstanceOf("framework\\orm\\clauses\\OrderClause", $this->_clause);
     }
 
     /**

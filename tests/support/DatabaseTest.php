@@ -1,5 +1,7 @@
 <?php
 
+use framework\orm\support\Database;
+
 class DatabaseTest extends PHPUnit_Framework_TestCase
 {
 
@@ -7,8 +9,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->_database = new Database();
-        $this->_database->init($GLOBALS['settings']['database']);
+        $this->_database = Database::getInstance();
     }
 
     public function tearDown()
@@ -17,28 +18,9 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
         unset($this->_database);
     }
 
-    public function testBadCreate()
-    {
-        //This just causes code coverage of the exception catching to be covered
-        $settings = array();
-        $settings['host']   = 'localhost';
-        $settings['dbname'] = 'database';
-        $settings['user']   = 'user';
-        $settings['pass']   = 'password';
-        try {
-            $db = new Database();
-            $db->init($settings);
-        } catch (PDOException $e) {
-            $this->assertInstanceOf("PDOException", $e);
-        }
-    }
-
-    /**
-     * @depends testBadCreate
-     */
     public function testInstance()
     {
-        $this->assertInstanceOf("Database", $this->_database);
+        $this->assertInstanceOf("framework\\orm\\support\\Database", $this->_database);
     }
 
     /**
@@ -121,19 +103,4 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
         );
         $this->assertEquals($test, $rows);
     }
-
-    /**
-     * @depends testBadCreate
-     * @depends testInstance
-     * @depends testReadSimple
-     * @depends testWriteSimple
-     * @depends testReadPlaceholder
-     * @depends testWritePlaceholder
-     */
-    public function testCounter()
-    {
-        $count = $this->_database->getCounter();
-        $this->assertEquals(0, $count);
-    }
-
 }

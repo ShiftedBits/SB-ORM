@@ -2,6 +2,9 @@
 
 include "TestStatement.php";
 
+use framework\orm\statements\Statement;
+use framework\orm\support\Database;
+
 class StatementTest extends PHPUnit_Framework_TestCase
 {
 
@@ -9,9 +12,7 @@ class StatementTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $db           = new Database();
-        $db->init($GLOBALS['settings']['database']);
-        $this->_query = new TestStatement($db);
+        $this->_query = new TestStatement(Database::getInstance());
     }
 
     public function tearDown()
@@ -27,6 +28,7 @@ class StatementTest extends PHPUnit_Framework_TestCase
     public function testBadSql()
     {
         $this->_query->passthrough("SELECT * FROM bad_table");
+        $this->_query->addParameters(array());
         try {
             $rows = $this->_query->run();
         } catch (PDOException $pdoe) {
