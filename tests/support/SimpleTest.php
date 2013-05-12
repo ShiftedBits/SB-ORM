@@ -9,7 +9,7 @@ class SimpleTest extends PHPUnit_Framework_TestCase
     private $_db;
     public function setUp()
     {
-        $this->_db = new Database($GLOBALS['settings']['database']);
+        $this->_db = Database::getInstance();
         $this->_sq = new Simple('tst_sque_simple_query', $this->_db);
         $this->_sq->post(array('sque_id' => 1, 'sque_value' => 1));
         $this->_sq->post(array('sque_id' => 2, 'sque_value' => 2));
